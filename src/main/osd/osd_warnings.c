@@ -38,6 +38,7 @@
 #include "drivers/display.h"
 #include "drivers/osd_symbols.h"
 #include "drivers/time.h"
+#include "drivers/dshot.h"
 
 #include "fc/core.h"
 #include "fc/rc.h"
@@ -301,6 +302,28 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
         }
     }
 #endif // USE_ESC_SENSOR
+
+#if defined(USE_DSHOT) && defined(USE_DSHOT_TELEMETRY)
+    // Show esc error
+    if (osdWarnGetState(OSD_WARNING_ESC_FAIL) && ARMING_FLAG(ARMED))
+    {
+    	uint32_t dshotEscErrorLength = 0;
+    	for (uint8_t k = 0; k < getMotorCount(); k++)
+    	{
+    		if (dshotTelemetryState.motorState[k].telemetryActive && dshotTelemetryState.motorState[k].telemetryValue == 0)
+    		{
+    			dshotEscErrorLength += tfp_sprintf(warningText + dshotEscErrorLength, "ESC%d ", k + 1);
+    		}
+    	}
+    	if (dshotEscErrorLength)
+    	{
+    		tfp_sprintf(warningText + dshotEscErrorLength, "FAIL");
+    		*displayAttr = DISPLAYPORT_ATTR_WARNING;
+    		*blinking = true;
+    		return;
+    	}
+    }
+#endif
 
     if (osdWarnGetState(OSD_WARNING_BATTERY_WARNING) && batteryState == BATTERY_WARNING) {
         tfp_sprintf(warningText, "LOW BATTERY");
