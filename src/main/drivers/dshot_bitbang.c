@@ -500,7 +500,9 @@ static bool bbUpdateStart(void)
 #ifdef USE_DSHOT_TELEMETRY_STATS
         const timeMs_t currentTimeMs = millis();
 #endif
+        dshotTelemetryType_t type;
         timeUs_t currentUs = micros();
+
         // don't send while telemetry frames might still be incoming
         if (cmpTimeUs(currentUs, lastSendUs) < (timeDelta_t)(40 + 2 * dshotFrameUs)) {
             return false;
@@ -525,21 +527,21 @@ static bool bbUpdateStart(void)
             uint32_t value = decode_bb_bitband(
                 bbMotors[motorIndex].bbPort->portInputBuffer,
                 bbMotors[motorIndex].bbPort->portInputCount - bbDMA_Count(bbMotors[motorIndex].bbPort),
-                bbMotors[motorIndex].pinIndex);
+                bbMotors[motorIndex].pinIndex, &type);
 #else
             uint32_t value = decode_bb(
                 bbMotors[motorIndex].bbPort->portInputBuffer,
                 bbMotors[motorIndex].bbPort->portInputCount - bbDMA_Count(bbMotors[motorIndex].bbPort),
-                bbMotors[motorIndex].pinIndex);
+                bbMotors[motorIndex].pinIndex, &type);
 #endif
-            if (value == BB_NOEDGE) {
+            if (value == DSHOT_TELEMETRY_NOEDGE) {
                 continue;
             }
             dshotTelemetryState.readCount++;
 
-            if (value != BB_INVALID) {
-                dshotTelemetryState.motorState[motorIndex].telemetryValue = value;
-                dshotTelemetryState.motorState[motorIndex].telemetryActive = true;
+            if (value != DSHOT_TELEMETRY_INVALID) {
+                dshotTelemetryState.motorState[motorIndex].telemetryData[type] = value;
+                dshotTelemetryState.motorState[motorIndex].telemetryTypes |= (1 << type);
                 if (motorIndex < 4) {
                     DEBUG_SET(DEBUG_DSHOT_RPM_TELEMETRY, motorIndex, value);
                 }
@@ -547,7 +549,7 @@ static bool bbUpdateStart(void)
                 dshotTelemetryState.invalidPacketCount++;
             }
 #ifdef USE_DSHOT_TELEMETRY_STATS
-            updateDshotTelemetryQuality(&dshotTelemetryQuality[motorIndex], value != BB_INVALID, currentTimeMs);
+            updateDshotTelemetryQuality(&dshotTelemetryQuality[motorIndex], value != DSHOT_TELEMETRY_INVALID, currentTimeMs);
 #endif
         }
     }

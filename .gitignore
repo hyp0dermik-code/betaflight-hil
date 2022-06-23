@@ -50,3 +50,4 @@ ubuntu*.log
 
 # EEPROM image file (created by SITL)
 eeprom.bin
+/Debug/

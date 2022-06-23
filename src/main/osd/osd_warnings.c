@@ -310,7 +310,9 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
     	uint32_t dshotEscErrorLength = 0;
     	for (uint8_t k = 0; k < getMotorCount(); k++)
     	{
-    		if (dshotTelemetryState.motorState[k].telemetryActive && dshotTelemetryState.motorState[k].telemetryValue == 0)
+    		// Old only eRPM style telemetry data
+    		if (dshotTelemetryState.motorState[k].telemetryTypes == DSHOT_TELEMETRY_TYPE_eRPM &&
+    				dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM] == 0)
     		{
     			dshotEscErrorLength += tfp_sprintf(warningText + dshotEscErrorLength, "ESC%d ", k + 1);
     		}

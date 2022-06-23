@@ -24,13 +24,16 @@
 
 #include "pg/motor.h"
 
-#define DSHOT_MIN_THROTTLE       48
-#define DSHOT_MAX_THROTTLE     2047
-#define DSHOT_3D_FORWARD_MIN_THROTTLE 1048
-#define DSHOT_RANGE (DSHOT_MAX_THROTTLE - DSHOT_MIN_THROTTLE)
+#define DSHOT_MIN_THROTTLE       		(48)
+#define DSHOT_MAX_THROTTLE     			(2047)
+#define DSHOT_3D_FORWARD_MIN_THROTTLE 	(1048)
+#define DSHOT_RANGE 					(DSHOT_MAX_THROTTLE - DSHOT_MIN_THROTTLE)
 
-#define MIN_GCR_EDGES         7
-#define MAX_GCR_EDGES         22
+#define DSHOT_TELEMETRY_NOEDGE 			(0xfffe)
+#define DSHOT_TELEMETRY_INVALID 		(0xffff)
+
+#define MIN_GCR_EDGES         			(7)
+#define MAX_GCR_EDGES         			(22)
 
 // comment out to see frame dump of corrupted frames in dshot_telemetry_info
 //#define DEBUG_BBDECODE
@@ -39,6 +42,18 @@
 #define DSHOT_TELEMETRY_QUALITY_WINDOW 1       // capture a rolling 1 second of packet stats
 #define DSHOT_TELEMETRY_QUALITY_BUCKET_MS 100  // determines the granularity of the stats and the overall number of rolling buckets
 #define DSHOT_TELEMETRY_QUALITY_BUCKET_COUNT (DSHOT_TELEMETRY_QUALITY_WINDOW * 1000 / DSHOT_TELEMETRY_QUALITY_BUCKET_MS)
+
+typedef enum dshotTelemetryType_e {
+	DSHOT_TELEMETRY_TYPE_eRPM 			= 0,
+	DSHOT_TELEMETRY_TYPE_TEMPERATURE 	= 1,
+	DSHOT_TELEMETRY_TYPE_DEBUG0 		= 2,
+	DSHOT_TELEMETRY_TYPE_DEBUG1 		= 3,
+	DSHOT_TELEMETRY_TYPE_UNUSED1 		= 4,
+	DSHOT_TELEMETRY_TYPE_UNUSED2 		= 5,
+	DSHOT_TELEMETRY_TYPE_UNUSED3 		= 6,
+	DSHOT_TELEMETRY_TYPE_UNUSED4 		= 7,
+	DSHOT_TELEMETRY_TYPE_COUNT	 		= 8
+} dshotTelemetryType_t;
 
 typedef struct dshotTelemetryQuality_s {
     uint32_t packetCountSum;
@@ -66,8 +81,8 @@ uint16_t prepareDshotPacket(dshotProtocolControl_t *pcb);
 extern bool useDshotTelemetry;
 
 typedef struct dshotTelemetryMotorState_s {
-    uint16_t telemetryValue;
-    bool telemetryActive;
+    uint16_t telemetryData[DSHOT_TELEMETRY_TYPE_COUNT];
+    uint8_t telemetryTypes;
 } dshotTelemetryMotorState_t;
 
 
@@ -93,3 +108,6 @@ bool isDshotTelemetryActive(void);
 int16_t getDshotTelemetryMotorInvalidPercent(uint8_t motorIndex);
 
 void validateAndfixMotorOutputReordering(uint8_t *array, const unsigned size);
+
+uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type);
+

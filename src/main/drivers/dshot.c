@@ -132,17 +132,54 @@ FAST_CODE uint16_t prepareDshotPacket(dshotProtocolControl_t *pcb)
 }
 
 #ifdef USE_DSHOT_TELEMETRY
+
 FAST_DATA_ZERO_INIT dshotTelemetryState_t dshotTelemetryState;
 
 uint16_t getDshotTelemetry(uint8_t index)
 {
-    return dshotTelemetryState.motorState[index].telemetryValue;
+    return dshotTelemetryState.motorState[index].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM];
 }
 
-#endif
+bool isDshotMotorTelemetryActive(uint8_t motorIndex)
+{
+    return (dshotTelemetryState.motorState[motorIndex].telemetryTypes & DSHOT_TELEMETRY_TYPE_eRPM) != 0;
+}
+
+bool isDshotTelemetryActive(void)
+{
+    const unsigned motorCount = motorDeviceCount();
+    if (motorCount) {
+        for (unsigned i = 0; i < motorCount; i++) {
+            if (!isDshotMotorTelemetryActive(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+#endif // USE_DSHOT_TELEMETRY
 
 #ifdef USE_DSHOT_TELEMETRY_STATS
+
 FAST_DATA_ZERO_INIT dshotTelemetryQuality_t dshotTelemetryQuality[MAX_SUPPORTED_MOTORS];
+
+int16_t getDshotTelemetryMotorInvalidPercent(uint8_t motorIndex)
+{
+    int16_t invalidPercent = 0;
+
+    if (isDshotMotorTelemetryActive(motorIndex)) {
+        const uint32_t totalCount = dshotTelemetryQuality[motorIndex].packetCountSum;
+        const uint32_t invalidCount = dshotTelemetryQuality[motorIndex].invalidCountSum;
+        if (totalCount > 0) {
+            invalidPercent = lrintf(invalidCount * 10000.0f / totalCount);
+        }
+    } else {
+        invalidPercent = 10000;  // 100.00%
+    }
+    return invalidPercent;
+}
 
 void updateDshotTelemetryQuality(dshotTelemetryQuality_t *qualityStats, bool packetValid, timeMs_t currentTimeMs)
 {
@@ -199,4 +236,73 @@ void validateAndfixMotorOutputReordering(uint8_t *array, const unsigned size)
             array[i] = i;
         }
     }
+}
+
+uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type)
+{
+	// Old DSHOT odd highest 8 bit values stand for eRPM coding
+	// Old DSHOT even highest 8 bit values coded repeated values and were unused. Extended telemetry uses those repeated and unused values.
+	switch (value & 0x0f00)
+	{
+
+	case 0x0200:
+		// Temperature range
+		value = value & 0x00ff;
+
+		// Set telemetry type
+		*type = DSHOT_TELEMETRY_TYPE_TEMPERATURE;
+		break;
+
+	case 0x0400:
+		// Debug range
+
+		// Set telemetry type
+		*type = DSHOT_TELEMETRY_TYPE_DEBUG0;
+		break;
+
+	case 0x0600:
+		// Debug range
+
+		// Set telemetry type
+		*type = DSHOT_TELEMETRY_TYPE_DEBUG1;
+		break;
+
+	case 0x0800:
+		*type = DSHOT_TELEMETRY_TYPE_UNUSED1;
+		break;
+
+	case 0x0A00:
+		*type = DSHOT_TELEMETRY_TYPE_UNUSED2;
+		break;
+
+	case 0x0C00:
+		*type = DSHOT_TELEMETRY_TYPE_UNUSED3;
+		break;
+
+	case 0x0E00:
+		*type = DSHOT_TELEMETRY_TYPE_UNUSED4;
+		break;
+
+	default:
+		// eRPM range
+		if (value == 0x0fff) {
+			return 0;
+		}
+
+		// Convert value to 16 bit from the GCR telemetry format (eeem mmmm mmmm)
+		value = (value & 0x000001ff) << ((value & 0xfffffe00) >> 9);
+		if (!value) {
+			return DSHOT_TELEMETRY_INVALID;
+		}
+
+		// Convert period to erpm * 100
+		value = (1000000 * 60 / 100 + value / 2) / value;
+
+		// Set telemetry type
+		*type = DSHOT_TELEMETRY_TYPE_eRPM;
+		break;
+
+	}
+
+	return value;
 }
