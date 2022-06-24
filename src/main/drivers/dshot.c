@@ -254,33 +254,35 @@ uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type
 		break;
 
 	case 0x0400:
+		*type = DSHOT_TELEMETRY_TYPE_UNUSED0;
+		break;
+
+	case 0x0600:
+		*type = DSHOT_TELEMETRY_TYPE_UNUSED1;
+		break;
+
+	case 0x0800:
+		*type = DSHOT_TELEMETRY_TYPE_UNUSED2;
+		break;
+
+	case 0x0A00:
+		*type = DSHOT_TELEMETRY_TYPE_UNUSED3;
+		break;
+
+	case 0x0C00:
 		// Debug range
+		value = value & 0x00ff;
 
 		// Set telemetry type
 		*type = DSHOT_TELEMETRY_TYPE_DEBUG0;
 		break;
 
-	case 0x0600:
+	case 0x0E00:
 		// Debug range
+		value = value & 0x00ff;
 
 		// Set telemetry type
 		*type = DSHOT_TELEMETRY_TYPE_DEBUG1;
-		break;
-
-	case 0x0800:
-		*type = DSHOT_TELEMETRY_TYPE_UNUSED1;
-		break;
-
-	case 0x0A00:
-		*type = DSHOT_TELEMETRY_TYPE_UNUSED2;
-		break;
-
-	case 0x0C00:
-		*type = DSHOT_TELEMETRY_TYPE_UNUSED3;
-		break;
-
-	case 0x0E00:
-		*type = DSHOT_TELEMETRY_TYPE_UNUSED4;
 		break;
 
 	default:
