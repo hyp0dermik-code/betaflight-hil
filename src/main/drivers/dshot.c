@@ -142,7 +142,7 @@ uint16_t getDshotTelemetry(uint8_t index)
 
 bool isDshotMotorTelemetryActive(uint8_t motorIndex)
 {
-    return (dshotTelemetryState.motorState[motorIndex].telemetryTypes & DSHOT_TELEMETRY_TYPE_eRPM) != 0;
+    return (dshotTelemetryState.motorState[motorIndex].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_eRPM)) != 0;
 }
 
 bool isDshotTelemetryActive(void)
