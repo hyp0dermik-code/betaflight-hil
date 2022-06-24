@@ -6150,6 +6150,7 @@ static void cliResource(const char *cmdName, char *cmdline)
 #endif
 
 #ifdef USE_DSHOT_TELEMETRY
+
 static void cliDshotTelemetryInfo(const char *cmdName, char *cmdline)
 {
     UNUSED(cmdName);
@@ -6208,6 +6209,23 @@ static void cliDshotTelemetryInfo(const char *cmdName, char *cmdline)
         cliPrintLine("Dshot telemetry not enabled");
     }
 }
+
+static void cliDshotTelemetryData(const char *cmdName, char *cmdline)
+{
+    UNUSED(cmdName);
+    UNUSED(cmdline);
+
+    if (useDshotTelemetry){
+        for (uint8_t i = 0; i < getMotorCount(); i++) {
+        	cliPrintLinef("Motor%d", i + 1);
+        	cliPrintLinef("    RPM: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM] * 100 * 2 / motorConfig()->motorPoleCount);
+        	cliPrintLinef("    TEMP: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE]);
+        	cliPrintLinef("    DBG0: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_DEBUG0]);
+        	cliPrintLinef("    DBG1: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_DEBUG1]);
+        }
+    }
+}
+
 #endif
 
 static void printConfig(const char *cmdName, char *cmdline, bool doDiff)
@@ -6531,6 +6549,7 @@ const clicmd_t cmdTable[] = {
 #endif
 #ifdef USE_DSHOT_TELEMETRY
     CLI_COMMAND_DEF("dshot_telemetry_info", "display dshot telemetry info and stats", NULL, cliDshotTelemetryInfo),
+    CLI_COMMAND_DEF("dshot_telemetry_data", "display current dshot telemetry data", NULL, cliDshotTelemetryData),
 #endif
 #ifdef USE_DSHOT
     CLI_COMMAND_DEF("dshotprog", "program DShot ESC(s)", "<index> <command>+", cliDshotProg),
