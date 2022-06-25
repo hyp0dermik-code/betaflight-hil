@@ -6218,7 +6218,12 @@ static void cliDshotTelemetryData(const char *cmdName, char *cmdline)
     if (useDshotTelemetry){
         for (uint8_t i = 0; i < getMotorCount(); i++) {
         	cliPrintLinef("Motor%d", i + 1);
-        	cliPrintLinef("    TYPES: 0x%02X", dshotTelemetryState.motorState[i].telemetryTypes);
+        	cliPrintf("    TYPES: ");
+        	if (dshotTelemetryState.motorState[i].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_eRPM))
+        		cliPrintf("eRPM ");
+        	if (dshotTelemetryState.motorState[i].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_TEMPERATURE))
+        		cliPrintf("TEMP ");
+            cliPrintLinefeed();
         	cliPrintLinef("    RPM: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM] * 100 * 2 / motorConfig()->motorPoleCount);
         	cliPrintLinef("    TEMP: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE]);
         	cliPrintLinef("    DBG0: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_DEBUG0]);
