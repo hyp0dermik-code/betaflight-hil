@@ -343,13 +343,17 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
     			dshotEscErrorLength = dshotEscErrorLengthMotorBegin;
     	}
 
-    	// If warning exists then notify
+    	// If warning exists then notify, otherwise clear warning message
     	if (dshotEscErrorLength > 3)
     	{
     		warningText[dshotEscErrorLength] = 0;		// End string
     		*displayAttr = DISPLAYPORT_ATTR_WARNING;
     		*blinking = true;
     		return;
+    	}
+    	else
+    	{
+    		warningText[0] = 0;
     	}
     }
 #endif
