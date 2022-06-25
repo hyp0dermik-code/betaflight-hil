@@ -952,7 +952,8 @@ static void osdElementOsdProfileName(osdElementParms_t *element)
 }
 #endif
 
-#ifdef USE_ESC_SENSOR
+#if defined(USE_ESC_SENSOR) || defined(USE_DSHOT_TELEMETRY)
+
 static void osdElementEscTemperature(osdElementParms_t *element)
 {
     if (featureIsEnabled(FEATURE_ESC_SENSOR)) {
@@ -960,22 +961,20 @@ static void osdElementEscTemperature(osdElementParms_t *element)
     }
     else
     {
-    	uint32_t osdEleIx = 0;
+    	uint32_t osdEleIx = tfp_sprintf(element->buff, "E%c", SYM_TEMPERATURE);
 
     	for (uint32_t k = 0; k < getMotorCount(); k++)
     	{
     		if ((dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_TEMPERATURE)) != 0)
     		{
-    			osdEleIx += tfp_sprintf(element->buff + osdEleIx, "E%c%3d%c ", SYM_TEMPERATURE,
-    					osdConvertTemperatureToSelectedUnit(dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE]),
-						osdGetTemperatureSymbolForSelectedUnit());
+    			osdEleIx += tfp_sprintf(element->buff + osdEleIx, "%3d%c",
+					osdConvertTemperatureToSelectedUnit(dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE]),
+					osdGetTemperatureSymbolForSelectedUnit());
     		}
     	}
     }
 }
-#endif // USE_ESC_SENSOR
 
-#if defined(USE_ESC_SENSOR) || defined(USE_DSHOT_TELEMETRY)
 static void osdElementEscRpm(osdElementParms_t *element)
 {
     renderOsdEscRpmOrFreq(&getEscRpm,element);
@@ -985,6 +984,7 @@ static void osdElementEscRpmFreq(osdElementParms_t *element)
 {
     renderOsdEscRpmOrFreq(&getEscRpmFreq,element);
 }
+
 #endif
 
 static void osdElementFlymode(osdElementParms_t *element)
@@ -1628,10 +1628,8 @@ const osdElementDrawFn osdElementDrawFunction[OSD_ITEM_COUNT] = {
     [OSD_NUMERICAL_VARIO]         = osdElementNumericalVario,
 #endif
     [OSD_COMPASS_BAR]             = osdElementCompassBar,
-#ifdef USE_ESC_SENSOR
-    [OSD_ESC_TMP]                 = osdElementEscTemperature,
-#endif
 #if defined(USE_DSHOT_TELEMETRY) || defined(USE_ESC_SENSOR)
+    [OSD_ESC_TMP]                 = osdElementEscTemperature,
     [OSD_ESC_RPM]                 = osdElementEscRpm,
 #endif
     [OSD_REMAINING_TIME_ESTIMATE] = osdElementRemainingTimeEstimate,
@@ -1743,14 +1741,10 @@ void osdAddActiveElements(void)
         osdAddActiveElement(OSD_EFFICIENCY);
     }
 #endif // GPS
-#ifdef USE_ESC_SENSOR
-    if (featureIsEnabled(FEATURE_ESC_SENSOR)) {
-        osdAddActiveElement(OSD_ESC_TMP);
-    }
-#endif
 
 #if defined(USE_DSHOT_TELEMETRY) || defined(USE_ESC_SENSOR)
     if ((featureIsEnabled(FEATURE_ESC_SENSOR)) || (motorConfig()->dev.useDshotTelemetry)) {
+        osdAddActiveElement(OSD_ESC_TMP);
         osdAddActiveElement(OSD_ESC_RPM);
         osdAddActiveElement(OSD_ESC_RPM_FREQ);
     }
@@ -1981,10 +1975,13 @@ void osdUpdateAlarms(void)
     else
     {
     	blink = false;
-    	for (uint32_t k = 0; !blink && (k < getMotorCount()); k++)
+    	if (osdConfig()->esc_temp_alarm != ESC_TEMP_ALARM_OFF)
     	{
-    		blink = (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_TEMPERATURE)) != 0 &&
-				dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE] >= osdConfig()->esc_temp_alarm;
+    		for (uint32_t k = 0; !blink && (k < getMotorCount()); k++)
+    		{
+    			blink = (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_TEMPERATURE)) != 0 &&
+					dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE] >= osdConfig()->esc_temp_alarm;
+    		}
     	}
     }
 
