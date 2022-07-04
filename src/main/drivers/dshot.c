@@ -246,7 +246,7 @@ uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type
 	{
 
 	case 0x0200:
-		// Temperature range
+		// Temperature range (in degree Celsius, just like Blheli_32 and KISS)
 		value = value & 0x00ff;
 
 		// Set telemetry type
@@ -254,35 +254,51 @@ uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type
 		break;
 
 	case 0x0400:
-		*type = DSHOT_TELEMETRY_TYPE_UNUSED0;
-		break;
-
-	case 0x0600:
-		*type = DSHOT_TELEMETRY_TYPE_UNUSED1;
-		break;
-
-	case 0x0800:
-		*type = DSHOT_TELEMETRY_TYPE_UNUSED2;
-		break;
-
-	case 0x0A00:
-		*type = DSHOT_TELEMETRY_TYPE_UNUSED3;
-		break;
-
-	case 0x0C00:
-		// Debug range
+		// Voltage range (0-63,75V step 0,25V)
 		value = value & 0x00ff;
 
 		// Set telemetry type
-		*type = DSHOT_TELEMETRY_TYPE_DEBUG0;
+		*type = DSHOT_TELEMETRY_TYPE_VOLTAGE;
 		break;
 
-	case 0x0E00:
-		// Debug range
+	case 0x0600:
+		// Current range (0-255A step 1A)
+		value = value & 0x00ff;
+
+		// Set telemetry type
+		*type = DSHOT_TELEMETRY_TYPE_CURRENT;
+		break;
+
+	case 0x0800:
+		// Debug 1 value
 		value = value & 0x00ff;
 
 		// Set telemetry type
 		*type = DSHOT_TELEMETRY_TYPE_DEBUG1;
+		break;
+
+	case 0x0A00:
+		// Debug 2 value
+		value = value & 0x00ff;
+
+		// Set telemetry type
+		*type = DSHOT_TELEMETRY_TYPE_DEBUG2;
+		break;
+
+	case 0x0C00:
+		// Debug 3 value
+		value = value & 0x00ff;
+
+		// Set telemetry type
+		*type = DSHOT_TELEMETRY_TYPE_DEBUG3;
+		break;
+
+	case 0x0E00:
+		// State / events
+		value = value & 0x00ff;
+
+		// Set telemetry type
+		*type = DSHOT_TELEMETRY_TYPE_STATE_EVENTS;
 		break;
 
 	default:
