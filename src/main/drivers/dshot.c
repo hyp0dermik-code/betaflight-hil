@@ -25,6 +25,7 @@
 #include <math.h>
 
 #include "platform.h"
+#include "dshot.h"
 
 #ifdef USE_DSHOT
 
@@ -47,7 +48,6 @@
 
 #include "rx/rx.h"
 
-#include "dshot.h"
 
 void dshotInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm, float *deadbandMotor3dHigh, float *deadbandMotor3dLow) {
     float outputLimitOffset = DSHOT_RANGE * (1 - outputLimit);

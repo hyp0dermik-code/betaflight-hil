@@ -43,6 +43,17 @@
 #define DSHOT_TELEMETRY_QUALITY_BUCKET_MS 100  // determines the granularity of the stats and the overall number of rolling buckets
 #define DSHOT_TELEMETRY_QUALITY_BUCKET_COUNT (DSHOT_TELEMETRY_QUALITY_WINDOW * 1000 / DSHOT_TELEMETRY_QUALITY_BUCKET_MS)
 
+typedef struct dshotTelemetryQuality_s {
+    uint32_t packetCountSum;
+    uint32_t invalidCountSum;
+    uint32_t packetCountArray[DSHOT_TELEMETRY_QUALITY_BUCKET_COUNT];
+    uint32_t invalidCountArray[DSHOT_TELEMETRY_QUALITY_BUCKET_COUNT];
+    uint8_t lastBucketIndex;
+}  dshotTelemetryQuality_t;
+
+extern dshotTelemetryQuality_t dshotTelemetryQuality[MAX_SUPPORTED_MOTORS];
+#endif // USE_DSHOT_TELEMETRY_STATS
+
 typedef enum dshotTelemetryType_e {
 	DSHOT_TELEMETRY_TYPE_eRPM 			= 0,
 	DSHOT_TELEMETRY_TYPE_TEMPERATURE 	= 1,
@@ -54,17 +65,6 @@ typedef enum dshotTelemetryType_e {
 	DSHOT_TELEMETRY_TYPE_STATE_EVENTS 	= 7,
 	DSHOT_TELEMETRY_TYPE_COUNT	 		= 8
 } dshotTelemetryType_t;
-
-typedef struct dshotTelemetryQuality_s {
-    uint32_t packetCountSum;
-    uint32_t invalidCountSum;
-    uint32_t packetCountArray[DSHOT_TELEMETRY_QUALITY_BUCKET_COUNT];
-    uint32_t invalidCountArray[DSHOT_TELEMETRY_QUALITY_BUCKET_COUNT];
-    uint8_t lastBucketIndex;
-}  dshotTelemetryQuality_t;
-
-extern dshotTelemetryQuality_t dshotTelemetryQuality[MAX_SUPPORTED_MOTORS];
-#endif // USE_DSHOT_TELEMETRY_STATS
 
 typedef struct dshotProtocolControl_s {
     uint16_t value;
