@@ -6231,15 +6231,15 @@ static void cliDshotTelemetryData(const char *cmdName, char *cmdline)
         		cliPrintf("ST/EV ");
             cliPrintLinefeed();
         	cliPrintLinef("    RPM: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM] * 100 * 2 / motorConfig()->motorPoleCount);
-        	cliPrintLinef("    TEMP: %dºC", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE]);
-        	cliPrintLinef("    VCC: %d.%02d",
+        	cliPrintLinef("    TEMP: %ddegC", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE]);
+        	cliPrintLinef("    VCC: %d.%02dV",
         			dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_VOLTAGE] / 4,
 					25 * (dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_VOLTAGE] % 4));
         	cliPrintLinef("    CURR: %dA", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_CURRENT]);
-        	cliPrintLinef("    ST/EV: %dA", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_STATE_EVENTS]);
-        	cliPrintLinef("    DBG1: %dA", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_DEBUG1]);
-        	cliPrintLinef("    DBG2: %dA", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_DEBUG2]);
-        	cliPrintLinef("    DBG3: %dA", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_DEBUG3]);
+        	cliPrintLinef("    ST/EV: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_STATE_EVENTS]);
+        	cliPrintLinef("    DBG1: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_DEBUG1]);
+        	cliPrintLinef("    DBG2: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_DEBUG2]);
+        	cliPrintLinef("    DBG3: %d", dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_DEBUG3]);
         }
     }
 }
