@@ -206,16 +206,30 @@ FAST_CODE_NOINLINE bool pwmStartDshotMotorUpdate(void)
             TIM_DMACmd(dmaMotors[i].timerHardware->tim, dmaMotors[i].timerDmaSource, DISABLE);
 #endif
 
-            uint16_t value = 0xffff;
+            uint16_t value;
 
             if (edges > MIN_GCR_EDGES) {
                 dshotTelemetryState.readCount++;
+
+                // Prepare the allowed telemetry to be read
+                if ((dshotTelemetryState.motorState[i].telemetryTypes & DSHOT_EXTENDED_TELEMETRY_MASK) != 0 ||
+                		(!dshotCommandQueueEmpty() && dshotCommandGetCurrent(i) == DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE))
+                {
+                	// Allow all telemetry types
+                	type = DSHOT_TELEMETRY_TYPE_COUNT;
+                }
+                else
+                {
+                	// Only allow eRPM telemetry
+                	type = DSHOT_TELEMETRY_TYPE_eRPM;
+                }
+
                 value = decodeTelemetryPacket(dmaMotors[i].dmaBuffer, edges, &type);
 
 #ifdef USE_DSHOT_TELEMETRY_STATS
                 bool validTelemetryPacket = false;
 #endif
-                if (value != 0xffff) {
+                if (value != DSHOT_TELEMETRY_INVALID) {
                     dshotTelemetryState.motorState[i].telemetryData[type] = value;
                     dshotTelemetryState.motorState[i].telemetryTypes |= (1 << type);
                     if (i < 4) {

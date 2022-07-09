@@ -238,89 +238,103 @@ void validateAndfixMotorOutputReordering(uint8_t *array, const unsigned size)
     }
 }
 
-uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type)
+static uint32_t dshot_decode_eRPM_telemetry_value(uint32_t value)
 {
-	// Old DSHOT odd highest 8 bit values stand for eRPM coding
-	// Old DSHOT even highest 8 bit values coded repeated values and were unused. Extended telemetry uses those repeated and unused values.
-	switch (value & 0x0f00)
-	{
-
-	case 0x0200:
-		// Temperature range (in degree Celsius, just like Blheli_32 and KISS)
-		value = value & 0x00ff;
-
-		// Set telemetry type
-		*type = DSHOT_TELEMETRY_TYPE_TEMPERATURE;
-		break;
-
-	case 0x0400:
-		// Voltage range (0-63,75V step 0,25V)
-		value = value & 0x00ff;
-
-		// Set telemetry type
-		*type = DSHOT_TELEMETRY_TYPE_VOLTAGE;
-		break;
-
-	case 0x0600:
-		// Current range (0-255A step 1A)
-		value = value & 0x00ff;
-
-		// Set telemetry type
-		*type = DSHOT_TELEMETRY_TYPE_CURRENT;
-		break;
-
-	case 0x0800:
-		// Debug 1 value
-		value = value & 0x00ff;
-
-		// Set telemetry type
-		*type = DSHOT_TELEMETRY_TYPE_DEBUG1;
-		break;
-
-	case 0x0A00:
-		// Debug 2 value
-		value = value & 0x00ff;
-
-		// Set telemetry type
-		*type = DSHOT_TELEMETRY_TYPE_DEBUG2;
-		break;
-
-	case 0x0C00:
-		// Debug 3 value
-		value = value & 0x00ff;
-
-		// Set telemetry type
-		*type = DSHOT_TELEMETRY_TYPE_DEBUG3;
-		break;
-
-	case 0x0E00:
-		// State / events
-		value = value & 0x00ff;
-
-		// Set telemetry type
-		*type = DSHOT_TELEMETRY_TYPE_STATE_EVENTS;
-		break;
-
-	default:
-		// eRPM range
-		if (value == 0x0fff) {
-			return 0;
-		}
-
-		// Convert value to 16 bit from the GCR telemetry format (eeem mmmm mmmm)
-		value = (value & 0x000001ff) << ((value & 0xfffffe00) >> 9);
-		if (!value) {
-			return DSHOT_TELEMETRY_INVALID;
-		}
-
-		// Convert period to erpm * 100
-		value = (1000000 * 60 / 100 + value / 2) / value;
-
-		// Set telemetry type
-		*type = DSHOT_TELEMETRY_TYPE_eRPM;
-		break;
-
+	// eRPM range
+	if (value == 0x0fff) {
+		return 0;
 	}
 
-	return value;
+	// Convert value to 16 bit from the GCR telemetry format (eeem mmmm mmmm)
+	value = (value & 0x000001ff) << ((value & 0xfffffe00) >> 9);
+	if (!value) {
+		return DSHOT_TELEMETRY_INVALID;
+	}
+
+	// Convert period to erpm * 100
+	return (1000000 * 60 / 100 + value / 2) / value;
+}
+
+uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type)
+{
+	uint32_t decoded;
+
+	if (*type == DSHOT_TELEMETRY_TYPE_eRPM)
+	{
+		decoded = dshot_decode_eRPM_telemetry_value(value);
+	}
+	else
+	{
+		// Extended DSHOT telemetry
+		switch (value & 0x0f00)
+		{
+
+		case 0x0200:
+			// Temperature range (in degree Celsius, just like Blheli_32 and KISS)
+			decoded = value & 0x00ff;
+
+			// Set telemetry type
+			*type = DSHOT_TELEMETRY_TYPE_TEMPERATURE;
+			break;
+
+		case 0x0400:
+			// Voltage range (0-63,75V step 0,25V)
+			decoded = value & 0x00ff;
+
+			// Set telemetry type
+			*type = DSHOT_TELEMETRY_TYPE_VOLTAGE;
+			break;
+
+		case 0x0600:
+			// Current range (0-255A step 1A)
+			decoded = value & 0x00ff;
+
+			// Set telemetry type
+			*type = DSHOT_TELEMETRY_TYPE_CURRENT;
+			break;
+
+		case 0x0800:
+			// Debug 1 value
+			decoded = value & 0x00ff;
+
+			// Set telemetry type
+			*type = DSHOT_TELEMETRY_TYPE_DEBUG1;
+			break;
+
+		case 0x0A00:
+			// Debug 2 value
+			decoded = value & 0x00ff;
+
+			// Set telemetry type
+			*type = DSHOT_TELEMETRY_TYPE_DEBUG2;
+			break;
+
+		case 0x0C00:
+			// Debug 3 value
+			decoded = value & 0x00ff;
+
+			// Set telemetry type
+			*type = DSHOT_TELEMETRY_TYPE_DEBUG3;
+			break;
+
+		case 0x0E00:
+			// State / events
+			decoded = value & 0x00ff;
+
+			// Set telemetry type
+			*type = DSHOT_TELEMETRY_TYPE_STATE_EVENTS;
+			break;
+
+		default:
+			// Decode as eRPM
+			decoded = dshot_decode_eRPM_telemetry_value(value);
+
+			// Set telemetry type
+			*type = DSHOT_TELEMETRY_TYPE_eRPM;
+			break;
+
+		}
+	}
+
+	return decoded;
 }

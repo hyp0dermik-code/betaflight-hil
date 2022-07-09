@@ -54,6 +54,8 @@ typedef struct dshotTelemetryQuality_s {
 extern dshotTelemetryQuality_t dshotTelemetryQuality[MAX_SUPPORTED_MOTORS];
 #endif // USE_DSHOT_TELEMETRY_STATS
 
+#define	DSHOT_EXTENDED_TELEMETRY_MASK		(~(1<<DSHOT_TELEMETRY_TYPE_eRPM))
+
 typedef enum dshotTelemetryType_e {
 	DSHOT_TELEMETRY_TYPE_eRPM 			= 0,
 	DSHOT_TELEMETRY_TYPE_TEMPERATURE 	= 1,
@@ -81,8 +83,8 @@ uint16_t prepareDshotPacket(dshotProtocolControl_t *pcb);
 extern bool useDshotTelemetry;
 
 typedef struct dshotTelemetryMotorState_s {
-    uint16_t telemetryData[DSHOT_TELEMETRY_TYPE_COUNT];
     uint8_t telemetryTypes;
+    uint16_t telemetryData[DSHOT_TELEMETRY_TYPE_COUNT];
 } dshotTelemetryMotorState_t;
 
 
