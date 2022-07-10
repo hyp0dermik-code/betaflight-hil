@@ -211,18 +211,8 @@ FAST_CODE_NOINLINE bool pwmStartDshotMotorUpdate(void)
             if (edges > MIN_GCR_EDGES) {
                 dshotTelemetryState.readCount++;
 
-                // Prepare the allowed telemetry to be read
-                if ((dshotTelemetryState.motorState[i].telemetryTypes & DSHOT_EXTENDED_TELEMETRY_MASK) != 0 ||
-                		(!dshotCommandQueueEmpty() && dshotCommandGetCurrent(i) == DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE))
-                {
-                	// Allow all telemetry types
-                	type = DSHOT_TELEMETRY_TYPE_COUNT;
-                }
-                else
-                {
-                	// Only allow eRPM telemetry
-                	type = DSHOT_TELEMETRY_TYPE_eRPM;
-                }
+                // Get dshot telemetry type to decode
+                type = dshot_get_telemetry_type_to_decode(i);
 
                 value = decodeTelemetryPacket(dmaMotors[i].dmaBuffer, edges, &type);
 

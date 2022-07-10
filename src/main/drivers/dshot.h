@@ -112,4 +112,5 @@ int16_t getDshotTelemetryMotorInvalidPercent(uint8_t motorIndex);
 void validateAndfixMotorOutputReordering(uint8_t *array, const unsigned size);
 
 uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type);
+dshotTelemetryType_t dshot_get_telemetry_type_to_decode(uint32_t motorIndex);
 

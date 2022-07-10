@@ -500,7 +500,6 @@ static bool bbUpdateStart(void)
 #ifdef USE_DSHOT_TELEMETRY_STATS
         const timeMs_t currentTimeMs = millis();
 #endif
-        dshotTelemetryType_t type;
         timeUs_t currentUs = micros();
 
         // don't send while telemetry frames might still be incoming
@@ -509,6 +508,7 @@ static bool bbUpdateStart(void)
         }
 
         for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < motorCount; motorIndex++) {
+            dshotTelemetryType_t type;
 #ifdef USE_DSHOT_CACHE_MGMT
             // Only invalidate the buffer once. If all motors are on a common port they'll share a buffer.
             bool invalidated = false;
@@ -523,18 +523,8 @@ static bool bbUpdateStart(void)
             }
 #endif
 
-            // Prepare the allowed telemetry to be read
-            if ((dshotTelemetryState.motorState[motorIndex].telemetryTypes & DSHOT_EXTENDED_TELEMETRY_MASK) != 0 ||
-            		(!dshotCommandQueueEmpty() && dshotCommandGetCurrent(motorIndex) == DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE))
-            {
-            	// Allow all telemetry types
-            	type = DSHOT_TELEMETRY_TYPE_COUNT;
-            }
-            else
-            {
-            	// Only allow eRPM telemetry
-            	type = DSHOT_TELEMETRY_TYPE_eRPM;
-            }
+            // Get dshot telemetry type to decode
+            type = dshot_get_telemetry_type_to_decode(motorIndex);
 
 #ifdef STM32F4
             uint32_t value = decode_bb_bitband(
