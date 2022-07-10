@@ -159,6 +159,30 @@ bool isDshotTelemetryActive(void)
     return false;
 }
 
+dshotTelemetryType_t dshot_get_telemetry_type_to_decode(uint32_t motorIndex)
+{
+	dshotTelemetryType_t type;
+
+    // Prepare the allowed telemetry to be read
+    if ((dshotTelemetryState.motorState[motorIndex].telemetryTypes & DSHOT_EXTENDED_TELEMETRY_MASK) != 0)
+    {
+    	// Allow decoding all kind of telemetry frames
+    	type = DSHOT_TELEMETRY_TYPE_COUNT;
+    }
+    else if (!dshotCommandQueueEmpty() && dshotCommandGetCurrent(motorIndex) == DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE)
+    {
+    	// Allow decoding only extended telemetry enable frame (during arming)
+    	type = DSHOT_TELEMETRY_TYPE_STATE_EVENTS;
+    }
+    else
+    {
+    	// Allow decoding only eRPM telemetry frame
+    	type = DSHOT_TELEMETRY_TYPE_eRPM;
+    }
+
+    return type;
+}
+
 #endif // USE_DSHOT_TELEMETRY
 
 #ifdef USE_DSHOT_TELEMETRY_STATS
@@ -362,28 +386,4 @@ uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type
 	}
 
 	return decoded;
-}
-
-dshotTelemetryType_t dshot_get_telemetry_type_to_decode(uint32_t motorIndex)
-{
-	dshotTelemetryType_t type;
-
-    // Prepare the allowed telemetry to be read
-    if ((dshotTelemetryState.motorState[motorIndex].telemetryTypes & DSHOT_EXTENDED_TELEMETRY_MASK) != 0)
-    {
-    	// Allow decoding all kind of telemetry frames
-    	type = DSHOT_TELEMETRY_TYPE_COUNT;
-    }
-    else if (!dshotCommandQueueEmpty() && dshotCommandGetCurrent(motorIndex) == DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE)
-    {
-    	// Allow decoding only extended telemetry enable frame (during arming)
-    	type = DSHOT_TELEMETRY_TYPE_STATE_EVENTS;
-    }
-    else
-    {
-    	// Allow decoding only eRPM telemetry frame
-    	type = DSHOT_TELEMETRY_TYPE_eRPM;
-    }
-
-    return type;
 }
