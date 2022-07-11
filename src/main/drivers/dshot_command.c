@@ -211,6 +211,11 @@ void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshot
     }
 
     if (commandType == DSHOT_CMD_TYPE_BLOCKING) {
+        // Fake command in queue. Blocking commands are launched from cli, and no inline commands are running
+        for (uint8_t i = 0; i < motorDeviceCount(); i++) {
+            commandQueue[commandQueueTail].command[i] = ((i == index) || (index == ALL_MOTORS)) ? command : DSHOT_CMD_MOTOR_STOP;
+        }
+
         delayMicroseconds(DSHOT_INITIAL_DELAY_US - DSHOT_COMMAND_DELAY_US);
         for (; repeats; repeats--) {
             delayMicroseconds(DSHOT_COMMAND_DELAY_US);
@@ -231,6 +236,11 @@ void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshot
             motorGetVTable().updateComplete();
         }
         delayMicroseconds(delayAfterCommandUs);
+
+        // Clean fake command in queue. When running blocking commands are launched from cli, and no inline commands are running
+        for (uint8_t i = 0; i < motorDeviceCount(); i++) {
+            commandQueue[commandQueueTail].command[i] = DSHOT_CMD_MOTOR_STOP;
+        }
     } else if (commandType == DSHOT_CMD_TYPE_INLINE) {
         dshotCommandControl_t *commandControl = addCommand();
         if (commandControl) {
