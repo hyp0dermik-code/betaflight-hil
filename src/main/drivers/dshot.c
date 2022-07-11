@@ -171,6 +171,8 @@ dshotTelemetryType_t dshot_get_telemetry_type_to_decode(uint32_t motorIndex)
     }
     else if (dshotCommandGetCurrent(motorIndex) == DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE)
     {
+        // No empty command queue check needed because responses are always originated after a request
+        // Always checking the current existing request
         // Allow decoding only extended telemetry enable frame (during arming)
         type = DSHOT_TELEMETRY_TYPE_STATE_EVENTS;
     }
