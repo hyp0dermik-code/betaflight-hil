@@ -325,7 +325,7 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
             warningText[dshotEscErrorLength++] = '0' + k + 1;
 
             // Add esc warnings
-            if (osdConfig()->esc_rpm_alarm != ESC_RPM_ALARM_OFF && ARMING_FLAG(ARMED) &&
+            if (ARMING_FLAG(ARMED) && osdConfig()->esc_rpm_alarm != ESC_RPM_ALARM_OFF &&
                     (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_eRPM)) != 0 &&
                     (dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM] * 100 * 2 / motorConfig()->motorPoleCount) <= osdConfig()->esc_rpm_alarm)
             {
@@ -337,8 +337,14 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
             {
                 warningText[dshotEscErrorLength++] = 'T';
             }
+            if (ARMING_FLAG(ARMED) && osdConfig()->esc_current_alarm != ESC_CURRENT_ALARM_OFF &&
+                    (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_CURRENT)) != 0 &&
+                    dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_CURRENT] >= osdConfig()->esc_current_alarm)
+            {
+                warningText[dshotEscErrorLength++] = 'C';
+            }
 
-            // If no esc warning data undo esc nr
+            // If no esc warning data undo esc nr (esc telemetry data types depends on the esc hw/sw)
             if (dshotEscErrorLengthMotorBegin + 2 == dshotEscErrorLength)
                 dshotEscErrorLength = dshotEscErrorLengthMotorBegin;
         }

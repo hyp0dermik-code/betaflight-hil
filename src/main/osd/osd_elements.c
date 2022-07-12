@@ -940,6 +940,10 @@ static void osdElementEscTemperature(osdElementParms_t *element)
                     osdConvertTemperatureToSelectedUnit(dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE]),
                     osdGetTemperatureSymbolForSelectedUnit());
             }
+            else
+            {
+                osdEleIx += tfp_sprintf(element->buff + osdEleIx, "  0%c", osdGetTemperatureSymbolForSelectedUnit());
+            }
         }
     }
 }
