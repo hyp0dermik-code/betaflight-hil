@@ -179,7 +179,7 @@ uint32_t decode_bb_bitband( uint16_t buffer[], uint32_t count, uint32_t bit, dsh
     // length of last sequence has to be inferred since the last bit with inverted dshot is high
     const int nlen = 21 - bits;
     if (nlen < 0) {
-    	return DSHOT_TELEMETRY_NOEDGE;
+        return DSHOT_TELEMETRY_NOEDGE;
     }
 
 #ifdef DEBUG_BBDECODE

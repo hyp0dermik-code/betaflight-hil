@@ -307,54 +307,54 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
     // Show esc error
     if (osdWarnGetState(OSD_WARNING_ESC_FAIL))
     {
-    	uint32_t dshotEscErrorLengthMotorBegin;
-    	uint32_t dshotEscErrorLength = 0;
+        uint32_t dshotEscErrorLengthMotorBegin;
+        uint32_t dshotEscErrorLength = 0;
 
-    	// Write 'ESC'
-		warningText[dshotEscErrorLength++] = 'E';
-		warningText[dshotEscErrorLength++] = 'S';
-		warningText[dshotEscErrorLength++] = 'C';
+        // Write 'ESC'
+        warningText[dshotEscErrorLength++] = 'E';
+        warningText[dshotEscErrorLength++] = 'S';
+        warningText[dshotEscErrorLength++] = 'C';
 
-    	for (uint32_t k = 0; k < getMotorCount(); k++)
-    	{
-    		// Remember text index before writing warnings
-    		dshotEscErrorLengthMotorBegin = dshotEscErrorLength;
+        for (uint32_t k = 0; k < getMotorCount(); k++)
+        {
+            // Remember text index before writing warnings
+            dshotEscErrorLengthMotorBegin = dshotEscErrorLength;
 
-    		// Write ESC nr
-    		warningText[dshotEscErrorLength++] = ' ';
-    		warningText[dshotEscErrorLength++] = '0' + k + 1;
+            // Write ESC nr
+            warningText[dshotEscErrorLength++] = ' ';
+            warningText[dshotEscErrorLength++] = '0' + k + 1;
 
-    		// Add esc warnings
+            // Add esc warnings
             if (osdConfig()->esc_rpm_alarm != ESC_RPM_ALARM_OFF && ARMING_FLAG(ARMED) &&
-				(dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_eRPM)) != 0 &&
-				(dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM] * 100 * 2 / motorConfig()->motorPoleCount) <= osdConfig()->esc_rpm_alarm)
+                    (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_eRPM)) != 0 &&
+                    (dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM] * 100 * 2 / motorConfig()->motorPoleCount) <= osdConfig()->esc_rpm_alarm)
             {
-        		warningText[dshotEscErrorLength++] = 'R';
+                warningText[dshotEscErrorLength++] = 'R';
             }
-    		if (osdConfig()->esc_temp_alarm != ESC_TEMP_ALARM_OFF &&
-				(dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_TEMPERATURE)) != 0 &&
-				dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE] >= osdConfig()->esc_temp_alarm)
-    		{
-        		warningText[dshotEscErrorLength++] = 'T';
-    		}
+            if (osdConfig()->esc_temp_alarm != ESC_TEMP_ALARM_OFF &&
+                    (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_TEMPERATURE)) != 0 &&
+                    dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE] >= osdConfig()->esc_temp_alarm)
+            {
+                warningText[dshotEscErrorLength++] = 'T';
+            }
 
-    		// If no esc warning data undo esc nr
-    		if (dshotEscErrorLengthMotorBegin + 2 == dshotEscErrorLength)
-    			dshotEscErrorLength = dshotEscErrorLengthMotorBegin;
-    	}
+            // If no esc warning data undo esc nr
+            if (dshotEscErrorLengthMotorBegin + 2 == dshotEscErrorLength)
+                dshotEscErrorLength = dshotEscErrorLengthMotorBegin;
+        }
 
-    	// If warning exists then notify, otherwise clear warning message
-    	if (dshotEscErrorLength > 3)
-    	{
-    		warningText[dshotEscErrorLength] = 0;		// End string
-    		*displayAttr = DISPLAYPORT_ATTR_WARNING;
-    		*blinking = true;
-    		return;
-    	}
-    	else
-    	{
-    		warningText[0] = 0;
-    	}
+        // If warning exists then notify, otherwise clear warning message
+        if (dshotEscErrorLength > 3)
+        {
+            warningText[dshotEscErrorLength] = 0;        // End string
+            *displayAttr = DISPLAYPORT_ATTR_WARNING;
+            *blinking = true;
+            return;
+        }
+        else
+        {
+            warningText[0] = 0;
+        }
     }
 #endif
 

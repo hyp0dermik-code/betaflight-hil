@@ -24,16 +24,16 @@
 
 #include "pg/motor.h"
 
-#define DSHOT_MIN_THROTTLE       		(48)
-#define DSHOT_MAX_THROTTLE     			(2047)
-#define DSHOT_3D_FORWARD_MIN_THROTTLE 	(1048)
-#define DSHOT_RANGE 					(DSHOT_MAX_THROTTLE - DSHOT_MIN_THROTTLE)
+#define DSHOT_MIN_THROTTLE              (48)
+#define DSHOT_MAX_THROTTLE              (2047)
+#define DSHOT_3D_FORWARD_MIN_THROTTLE   (1048)
+#define DSHOT_RANGE                     (DSHOT_MAX_THROTTLE - DSHOT_MIN_THROTTLE)
 
-#define DSHOT_TELEMETRY_NOEDGE 			(0xfffe)
-#define DSHOT_TELEMETRY_INVALID 		(0xffff)
+#define DSHOT_TELEMETRY_NOEDGE          (0xfffe)
+#define DSHOT_TELEMETRY_INVALID         (0xffff)
 
-#define MIN_GCR_EDGES         			(7)
-#define MAX_GCR_EDGES         			(22)
+#define MIN_GCR_EDGES                   (7)
+#define MAX_GCR_EDGES                   (22)
 
 // comment out to see frame dump of corrupted frames in dshot_telemetry_info
 //#define DEBUG_BBDECODE
@@ -54,18 +54,18 @@ typedef struct dshotTelemetryQuality_s {
 extern dshotTelemetryQuality_t dshotTelemetryQuality[MAX_SUPPORTED_MOTORS];
 #endif // USE_DSHOT_TELEMETRY_STATS
 
-#define	DSHOT_EXTENDED_TELEMETRY_MASK		(~(1<<DSHOT_TELEMETRY_TYPE_eRPM))
+#define DSHOT_EXTENDED_TELEMETRY_MASK   (~(1<<DSHOT_TELEMETRY_TYPE_eRPM))
 
 typedef enum dshotTelemetryType_e {
-	DSHOT_TELEMETRY_TYPE_eRPM 			= 0,
-	DSHOT_TELEMETRY_TYPE_TEMPERATURE 	= 1,
-	DSHOT_TELEMETRY_TYPE_VOLTAGE 		= 2,
-	DSHOT_TELEMETRY_TYPE_CURRENT 		= 3,
-	DSHOT_TELEMETRY_TYPE_DEBUG1 		= 4,
-	DSHOT_TELEMETRY_TYPE_DEBUG2 		= 5,
-	DSHOT_TELEMETRY_TYPE_DEBUG3 		= 6,
-	DSHOT_TELEMETRY_TYPE_STATE_EVENTS 	= 7,
-	DSHOT_TELEMETRY_TYPE_COUNT	 		= 8
+    DSHOT_TELEMETRY_TYPE_eRPM           = 0,
+    DSHOT_TELEMETRY_TYPE_TEMPERATURE    = 1,
+    DSHOT_TELEMETRY_TYPE_VOLTAGE        = 2,
+    DSHOT_TELEMETRY_TYPE_CURRENT        = 3,
+    DSHOT_TELEMETRY_TYPE_DEBUG1         = 4,
+    DSHOT_TELEMETRY_TYPE_DEBUG2         = 5,
+    DSHOT_TELEMETRY_TYPE_DEBUG3         = 6,
+    DSHOT_TELEMETRY_TYPE_STATE_EVENTS   = 7,
+    DSHOT_TELEMETRY_TYPE_COUNT          = 8
 } dshotTelemetryType_t;
 
 typedef struct dshotProtocolControl_s {
