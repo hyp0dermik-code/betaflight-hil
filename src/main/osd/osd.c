@@ -591,8 +591,16 @@ static void osdUpdateStats(void)
         if (stats.max_esc_temp < value) {
             stats.max_esc_temp = value;
         }
-    }
+    } else
 #endif
+    {
+        // Take max temp from dshot telemetry
+        for (uint32_t k = 0; k < getMotorCount(); k++) {
+            if (dshotTelemetryState.motorState[k].maxTemp > stats.max_esc_temp) {
+                stats.max_esc_temp = dshotTelemetryState.motorState[k].maxTemp;
+            }
+        }
+    }
 
 #if defined(USE_ESC_SENSOR) || defined(USE_DSHOT_TELEMETRY)
     int32_t rpm = getAverageEscRpm();

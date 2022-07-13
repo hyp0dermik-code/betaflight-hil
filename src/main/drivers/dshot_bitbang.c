@@ -543,8 +543,7 @@ static bool bbUpdateStart(void)
             dshotTelemetryState.readCount++;
 
             if (value != DSHOT_TELEMETRY_INVALID) {
-                dshotTelemetryState.motorState[motorIndex].telemetryData[type] = value;
-                dshotTelemetryState.motorState[motorIndex].telemetryTypes |= (1 << type);
+                dshotUpdateTelemetryData(motorIndex, type, value);
                 if (motorIndex < 4) {
                     DEBUG_SET(DEBUG_DSHOT_RPM_TELEMETRY, motorIndex, value);
                 }

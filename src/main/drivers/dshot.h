@@ -85,6 +85,7 @@ extern bool useDshotTelemetry;
 typedef struct dshotTelemetryMotorState_s {
     uint8_t telemetryTypes;
     uint16_t telemetryData[DSHOT_TELEMETRY_TYPE_COUNT];
+    uint8_t maxTemp;
 } dshotTelemetryMotorState_t;
 
 
@@ -111,6 +112,7 @@ int16_t getDshotTelemetryMotorInvalidPercent(uint8_t motorIndex);
 
 void validateAndfixMotorOutputReordering(uint8_t *array, const unsigned size);
 
-uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type);
 dshotTelemetryType_t dshot_get_telemetry_type_to_decode(uint32_t motorIndex);
+uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type);
+void dshotUpdateTelemetryData(uint32_t motorIndex, dshotTelemetryType_t type, uint16_t value);
 

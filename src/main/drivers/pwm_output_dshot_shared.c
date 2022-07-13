@@ -220,8 +220,7 @@ FAST_CODE_NOINLINE bool pwmStartDshotMotorUpdate(void)
                 bool validTelemetryPacket = false;
 #endif
                 if (value != DSHOT_TELEMETRY_INVALID) {
-                    dshotTelemetryState.motorState[i].telemetryData[type] = value;
-                    dshotTelemetryState.motorState[i].telemetryTypes |= (1 << type);
+                    dshotUpdateTelemetryData(value, type, value);
                     if (i < 4) {
                         DEBUG_SET(DEBUG_DSHOT_RPM_TELEMETRY, i, value);
                     }

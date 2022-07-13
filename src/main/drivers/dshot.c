@@ -379,3 +379,15 @@ uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type
 
     return decoded;
 }
+
+FAST_CODE void dshotUpdateTelemetryData(uint32_t motorIndex, dshotTelemetryType_t type, uint16_t value)
+{
+    // Update telemetry data
+    dshotTelemetryState.motorState[motorIndex].telemetryData[type] = value;
+    dshotTelemetryState.motorState[motorIndex].telemetryTypes |= (1 << type);
+
+    // Update max temp
+    if ((type == DSHOT_TELEMETRY_TYPE_TEMPERATURE) && (value > dshotTelemetryState.motorState[motorIndex].maxTemp)) {
+        dshotTelemetryState.motorState[motorIndex].maxTemp = value;
+    }
+}
