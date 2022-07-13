@@ -164,20 +164,15 @@ dshotTelemetryType_t dshot_get_telemetry_type_to_decode(uint32_t motorIndex)
     dshotTelemetryType_t type;
 
     // Prepare the allowed telemetry to be read
-    if ((dshotTelemetryState.motorState[motorIndex].telemetryTypes & DSHOT_EXTENDED_TELEMETRY_MASK) != 0)
-    {
+    if ((dshotTelemetryState.motorState[motorIndex].telemetryTypes & DSHOT_EXTENDED_TELEMETRY_MASK) != 0) {
         // Allow decoding all kind of telemetry frames
         type = DSHOT_TELEMETRY_TYPE_COUNT;
-    }
-    else if (dshotCommandGetCurrent(motorIndex) == DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE)
-    {
+    } else if (dshotCommandGetCurrent(motorIndex) == DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE) {
         // No empty command queue check needed because responses are always originated after a request
         // Always checking the current existing request
         // Allow decoding only extended telemetry enable frame (during arming)
         type = DSHOT_TELEMETRY_TYPE_STATE_EVENTS;
-    }
-    else
-    {
+    } else {
         // Allow decoding only eRPM telemetry frame
         type = DSHOT_TELEMETRY_TYPE_eRPM;
     }
@@ -285,8 +280,7 @@ uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type
 {
     uint32_t decoded;
 
-    switch (*type)
-    {
+    switch (*type) {
 
     case DSHOT_TELEMETRY_TYPE_eRPM:
         // Expect only eRPM telemetry
@@ -295,16 +289,13 @@ uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type
 
     case DSHOT_TELEMETRY_TYPE_STATE_EVENTS:
         // Expect an extended telemetry enable frame
-        if (value == 0x0E00)
-        {
+        if (value == 0x0E00) {
             // Decode
             decoded = 0;
 
             // Set telemetry type
             *type = DSHOT_TELEMETRY_TYPE_STATE_EVENTS;
-        }
-        else
-        {
+        } else {
             // Unexpected frame
             decoded = DSHOT_TELEMETRY_INVALID;
 
@@ -315,8 +306,7 @@ uint32_t dshot_decode_telemetry_value(uint32_t value, dshotTelemetryType_t *type
 
     default:
         // Extended DSHOT telemetry
-        switch (value & 0x0f00)
-        {
+        switch (value & 0x0f00) {
 
         case 0x0200:
             // Temperature range (in degree Celsius, just like Blheli_32 and KISS)

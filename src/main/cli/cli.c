@@ -6209,7 +6209,7 @@ static void cliDshotTelemetryData(const char *cmdName, char *cmdline)
     UNUSED(cmdName);
     UNUSED(cmdline);
 
-    if (useDshotTelemetry){
+    if (useDshotTelemetry) {
         for (uint8_t i = 0; i < getMotorCount(); i++) {
             cliPrintLinef("Motor%d", i + 1);
             cliPrintf("    TYPES: ");

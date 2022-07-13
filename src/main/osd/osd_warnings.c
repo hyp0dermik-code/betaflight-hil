@@ -305,8 +305,7 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
 
 #if defined(USE_DSHOT) && defined(USE_DSHOT_TELEMETRY)
     // Show esc error
-    if (osdWarnGetState(OSD_WARNING_ESC_FAIL))
-    {
+    if (osdWarnGetState(OSD_WARNING_ESC_FAIL)) {
         uint32_t dshotEscErrorLengthMotorBegin;
         uint32_t dshotEscErrorLength = 0;
 
@@ -315,11 +314,11 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
         warningText[dshotEscErrorLength++] = 'S';
         warningText[dshotEscErrorLength++] = 'C';
 
-        for (uint32_t k = 0; k < getMotorCount(); k++)
-        {
+        for (uint32_t k = 0; k < getMotorCount(); k++) {
             // Skip if no extended telemetry at all
-            if ((dshotTelemetryState.motorState[k].telemetryTypes & DSHOT_EXTENDED_TELEMETRY_MASK) == 0)
+            if ((dshotTelemetryState.motorState[k].telemetryTypes & DSHOT_EXTENDED_TELEMETRY_MASK) == 0) {
                 continue;
+            }
 
             // Remember text index before writing warnings
             dshotEscErrorLengthMotorBegin = dshotEscErrorLength;
@@ -329,22 +328,19 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
             warningText[dshotEscErrorLength++] = '0' + k + 1;
 
             // Add esc warnings
-            if (ARMING_FLAG(ARMED) && osdConfig()->esc_rpm_alarm != ESC_RPM_ALARM_OFF &&
-                    (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_eRPM)) != 0 &&
-                    (dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM] * 100 * 2 / motorConfig()->motorPoleCount) <= osdConfig()->esc_rpm_alarm)
-            {
+            if (ARMING_FLAG(ARMED) && osdConfig()->esc_rpm_alarm != ESC_RPM_ALARM_OFF
+                    && (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_eRPM)) != 0
+                    && (dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM] * 100 * 2 / motorConfig()->motorPoleCount) <= osdConfig()->esc_rpm_alarm) {
                 warningText[dshotEscErrorLength++] = 'R';
             }
-            if (osdConfig()->esc_temp_alarm != ESC_TEMP_ALARM_OFF &&
-                    (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_TEMPERATURE)) != 0 &&
-                    dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE] >= osdConfig()->esc_temp_alarm)
-            {
+            if (osdConfig()->esc_temp_alarm != ESC_TEMP_ALARM_OFF
+                    && (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_TEMPERATURE)) != 0
+                    && dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE] >= osdConfig()->esc_temp_alarm) {
                 warningText[dshotEscErrorLength++] = 'T';
             }
-            if (ARMING_FLAG(ARMED) && osdConfig()->esc_current_alarm != ESC_CURRENT_ALARM_OFF &&
-                    (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_CURRENT)) != 0 &&
-                    dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_CURRENT] >= osdConfig()->esc_current_alarm)
-            {
+            if (ARMING_FLAG(ARMED) && osdConfig()->esc_current_alarm != ESC_CURRENT_ALARM_OFF
+                    && (dshotTelemetryState.motorState[k].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_CURRENT)) != 0
+                    && dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_CURRENT] >= osdConfig()->esc_current_alarm) {
                 warningText[dshotEscErrorLength++] = 'C';
             }
 
@@ -354,15 +350,12 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
         }
 
         // If warning exists then notify, otherwise clear warning message
-        if (dshotEscErrorLength > 3)
-        {
+        if (dshotEscErrorLength > 3) {
             warningText[dshotEscErrorLength] = 0;        // End string
             *displayAttr = DISPLAYPORT_ATTR_WARNING;
             *blinking = true;
             return;
-        }
-        else
-        {
+        } else {
             warningText[0] = 0;
         }
     }
