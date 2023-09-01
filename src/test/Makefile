@@ -471,6 +471,12 @@ vtx_msp_unittest_DEFINES := \
 		USE_VTX_TABLE= \
 		USE_VTX_MSP=
 
+hil_dshot_unittest_SRC := \
+        $(USER_DIR)/hil/hil_dshot.c
+	
+hil_dshot_unittest_DEFINES := \
+		USE_DSHOT_TELEMETRY
+
 # Please tweak the following variable definitions as needed by your
 # project, except GTEST_HEADERS, which you can use in your own targets
 # but shouldn't modify.

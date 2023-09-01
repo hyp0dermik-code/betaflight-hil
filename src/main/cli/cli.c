@@ -172,6 +172,10 @@ bool cliMode = false;
 #include "telemetry/frsky_hub.h"
 #include "telemetry/telemetry.h"
 
+#ifdef USE_HIL_DSHOT
+#include "../hil/hil_dshot.h"
+#endif
+
 #include "cli.h"
 
 static serialPort_t *cliPort = NULL;
@@ -6525,6 +6529,13 @@ const clicmd_t cmdTable[] = {
     CLI_COMMAND_DEF("gyroregisters", "dump gyro config registers contents", NULL, cliDumpGyroRegisters),
 #endif
     CLI_COMMAND_DEF("help", "display command help", "[search string]", cliHelp),
+#ifdef USE_HIL_DSHOT
+    CLI_COMMAND_DEF("hil_dshot_add", "add command to hil motors queue", NULL, hilDshotCliAdd),
+    CLI_COMMAND_DEF("hil_dshot_clr", "clear hil motors queue", NULL, hilDshotCliClr),
+    CLI_COMMAND_DEF("hil_dshot_print", "print commands in hil motors queue", NULL, hilDshotCliPrint),
+    CLI_COMMAND_DEF("hil_dshot_results", "shows results gathered during hil command queue execution", NULL, hilDshotCliResults),
+    CLI_COMMAND_DEF("hil_dshot_run", "run commands in hil motors queue", NULL, hilDshotCliRun),
+#endif
 #ifdef USE_LED_STRIP_STATUS_MODE
         CLI_COMMAND_DEF("led", "configure leds", NULL, cliLed),
 #endif
@@ -6605,6 +6616,13 @@ const clicmd_t cmdTable[] = {
 #ifdef USE_VTX_TABLE
     CLI_COMMAND_DEF("vtx_info", "vtx power config dump", NULL, cliVtxInfo),
     CLI_COMMAND_DEF("vtxtable", "vtx frequency table", "<band> <bandname> <bandletter> [FACTORY|CUSTOM] <freq> ... <freq>\r\n", cliVtxTable),
+#endif
+#ifdef USE_HIL_DSHOT
+    CLI_COMMAND_DEF("hil_dshot_clr", "clear hil motors queue", NULL, hilDshotCliClr),
+    CLI_COMMAND_DEF("hil_dshot_add", "add command to hil motors queue", NULL, hilDshotCliAdd),
+    CLI_COMMAND_DEF("hil_dshot_print", "print commands in hil motors queue", NULL, hilDshotCliPrint),
+    CLI_COMMAND_DEF("hil_dshot_run", "run commands in hil motors queue", NULL, hilDshotCliRun),
+    CLI_COMMAND_DEF("hil_dshot_results", "shows results gathered during hil command queue execution", NULL, hilDshotCliResults),
 #endif
 };
 
@@ -6770,6 +6788,11 @@ void cliProcess(void)
 
         processCharacterInteractive(c);
     }
+
+#ifdef USE_HIL_DSHOT
+    // Runs hardware in the loop motors tasks
+    hilDshotMainFunction();
+#endif
 }
 
 void cliEnter(serialPort_t *serialPort)
