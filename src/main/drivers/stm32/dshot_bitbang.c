@@ -338,8 +338,6 @@ FAST_IRQ_HANDLER void bbDMAIrqHandler(dmaChannelDescriptor_t *descriptor)
 #ifdef DEBUG_COUNT_INTERRUPT
             bbPort->inputIrq++;
 #endif
-            // Disable DMA as telemetry reception is complete
-            bbDMA_Cmd(bbPort, DISABLE);
         } else {
 #ifdef DEBUG_COUNT_INTERRUPT
             bbPort->outputIrq++;
@@ -611,18 +609,21 @@ static void bbWriteInt(uint8_t motorIndex, uint16_t value)
 
     // fetch requestTelemetry from motors. Needs to be refactored.
     motorDmaOutput_t * const motor = getMotorDmaOutput(motorIndex);
-    bbmotor->protocolControl.requestTelemetry = motor->protocolControl.requestTelemetry;
-    motor->protocolControl.requestTelemetry = false;
 
-    // If there is a command ready to go overwrite the value and send that instead
     if (dshotCommandIsProcessing()) {
+        // Initialise the output buffers
+        bbUpdateInit();
+
+        // Override output value with command
         value = dshotCommandGetCurrent(motorIndex);
         if (value) {
-            bbmotor->protocolControl.requestTelemetry = true;
+            motor->protocolControl.requestTelemetry = true;
         }
     }
 
+    bbmotor->protocolControl.requestTelemetry = motor->protocolControl.requestTelemetry;
     bbmotor->protocolControl.value = value;
+    motor->protocolControl.requestTelemetry = false;
 
     uint16_t packet = prepareDshotPacket(&bbmotor->protocolControl);
 

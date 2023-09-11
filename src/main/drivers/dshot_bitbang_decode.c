@@ -108,6 +108,7 @@ uint32_t decode_bb_bitband( uint16_t buffer[], uint32_t count, uint32_t bit)
     sequenceIndex = 0;
 #endif
     uint32_t value = 0;
+    preambleSkip = 0;
 
     bitBandWord_t* p = (bitBandWord_t*)BITBAND_SRAM((uint32_t)buffer, bit);
     bitBandWord_t* b = p;
