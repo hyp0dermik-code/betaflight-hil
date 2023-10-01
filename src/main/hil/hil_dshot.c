@@ -191,7 +191,7 @@ static void printLogEntry(hil_dshot_log_entry_t *l)
         cliPrintLinef(
                 "M%d %5d %3d.%02dV %3dA %8drpm %3d.%02dV %3dA %3ddegC %d %d %d %2d",
                 k,
-                l->time,
+                l->time * HIL_DSHOT_MILLISECONDS_PER_TICK,
                 (l->fcVoltagePacked * 25u) / 100u,
                 25u * (((l->fcVoltagePacked * 25u) % 100u) / 25u),
                 l->fcCurrentPacked,
@@ -378,7 +378,7 @@ void hilDshotMainFunction(void)
             e->dshot_data[k].escCurrentPacked = dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_CURRENT];
             e->dshot_data[k].escStatePacked = dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_STATE_EVENTS];
         }
-        e->fcCurrentPacked = getAmperageLatest() / 1000u;       // Assuming mAh -> ampere
+        e->fcCurrentPacked = getAmperageLatest() / 100u;        // Assuming mAh -> ampere
         e->fcVoltagePacked = getBatteryVoltageLatest() / 25u;   // Assuming mV  -> volt quarter
         logCount++;
     }
