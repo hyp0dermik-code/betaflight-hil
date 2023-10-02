@@ -595,10 +595,13 @@ TEST(HilMotorsUnittest, TestHilDshotResults)
 
         if (k % 4u == 0u) {
             s = (102u + k / 4u);
-            sprintf(strtst, "M0 %5d %3d.%02dV %3dA %8drpm %3d.%02dV %3dA %3ddegC %d %d %d %2d", s,
+            sprintf(strtst, "M0 %5d %3d.%02dV %3d.%03dA %6drcp %8drpm %3d.%02dV %3dA %3ddegC %d %d %d %2d",
+                    s * 10u,
                     (3000u - 4u * s) / 100u,
-                    (((3000u - 4u * s) % 100u) / 25u) * 25u,
+                    (3000u - 4u * s) % 100u,
                     (1000u + 30u * s) / 1000u,
+                    (1000u + 30u * s) % 1000u,
+                    1010,
                     erpmToRpm(300u + s),
                     (2000u - 4u * s) / 100u,
                     (((2000u - 4u * s) % 100u) / 25u) * 25u,
@@ -614,6 +617,8 @@ TEST(HilMotorsUnittest, TestHilDshotResults)
             EXPECT_EQ(0, strcmp(buffer, strtst));
         }
     }
+//
+//    getc(stdin);
 }
 
 // STUBS
@@ -633,6 +638,11 @@ void cliPrintLinef(const char *format, ...)
 float motorConvertFromExternal(uint16_t externalValue)
 {
     return (float)externalValue;
+}
+
+uint16_t motorConvertToExternal(float externalValue)
+{
+    return (uint16_t)externalValue;
 }
 
 uint8_t getMotorCount(void)

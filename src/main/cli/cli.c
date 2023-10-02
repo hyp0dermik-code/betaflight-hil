@@ -4767,7 +4767,6 @@ if (buildKey) {
     // Battery meter
 
     cliPrintLinef("Voltage: %d * 0.01V (%dS battery - %s)", getBatteryVoltage(), getBatteryCellCount(), getBatteryStateString());
-    cliPrintLinef("Amperage: %dMa, current drawn: %dMah", getAmperage() * 10, getMAhDrawn());
 
     // Other devices and status
 

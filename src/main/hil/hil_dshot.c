@@ -69,6 +69,7 @@ typedef enum {
 } hil_motor_state_t;
 
 typedef struct {
+    uint16_t motorOutputValue;
     uint16_t erpm;
     uint8_t escTemperaturePacked;
     uint8_t escVoltagePacked;
@@ -78,8 +79,8 @@ typedef struct {
 
 typedef struct {
     uint16_t time;
-    uint8_t fcVoltagePacked;
-    uint8_t fcCurrentPacked;
+    uint16_t fcVoltage;
+    uint16_t fcCurrent;
     hil_dshot_data_t dshot_data[HIL_DSHOT_MAX_MOTOR_COUNT];
 } hil_dshot_log_entry_t;
 
@@ -189,12 +190,14 @@ static void printLogEntry(hil_dshot_log_entry_t *l)
 {
     for (uint32_t k = 0u; k < getMotorCount() && k < HIL_DSHOT_MAX_MOTOR_COUNT; k++) {
         cliPrintLinef(
-                "M%d %5d %3d.%02dV %3dA %8drpm %3d.%02dV %3dA %3ddegC %d %d %d %2d",
+                "M%d %5d %3d.%02dV %3d.%03dA %6drcp %8drpm %3d.%02dV %3dA %3ddegC %d %d %d %2d",
                 k,
                 l->time * HIL_DSHOT_MILLISECONDS_PER_TICK,
-                (l->fcVoltagePacked * 25u) / 100u,
-                25u * (((l->fcVoltagePacked * 25u) % 100u) / 25u),
-                l->fcCurrentPacked,
+                l->fcVoltage / 100u,
+                l->fcVoltage % 100u,
+                l->fcCurrent / 1000u,
+                l->fcCurrent % 1000u,
+                l->dshot_data[k].motorOutputValue,
                 erpmToRpm(l->dshot_data[0].erpm),                   // ESC rpm
                 (l->dshot_data[k].escVoltagePacked * 250u) / 1000u, // ESC voltage
                 25u * (((l->dshot_data[k].escVoltagePacked * 250u) % 1000u) / 250u),
@@ -212,10 +215,10 @@ static void printLogEntry(hil_dshot_log_entry_t *l)
 void hilDshotMainFunction(void)
 {
     uint32_t motorIndex;
-    uint32_t motorOutputValue;
     uint32_t command;
-    hil_dshot_log_entry_t *e;
     uint32_t k;
+    float motorOutputValue;
+    hil_dshot_log_entry_t *e;
 
     // Run the state machine
     switch (state)
@@ -372,14 +375,15 @@ void hilDshotMainFunction(void)
         e = log + logCount;
         e->time = (uint16_t)heartbeat;
         for (k = 0; k < HIL_DSHOT_MAX_MOTOR_COUNT && k < getMotorCount(); k++) {
+            e->dshot_data[k].motorOutputValue = motorConvertToExternal(motor_disarmed[k]);
             e->dshot_data[k].erpm = dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_eRPM];
             e->dshot_data[k].escTemperaturePacked = dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE];
             e->dshot_data[k].escVoltagePacked = dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_VOLTAGE];
             e->dshot_data[k].escCurrentPacked = dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_CURRENT];
             e->dshot_data[k].escStatePacked = dshotTelemetryState.motorState[k].telemetryData[DSHOT_TELEMETRY_TYPE_STATE_EVENTS];
         }
-        e->fcCurrentPacked = getAmperageLatest() / 100u;        // Assuming mAh -> ampere
-        e->fcVoltagePacked = getBatteryVoltageLatest() / 25u;   // Assuming mV  -> volt quarter
+        e->fcCurrent = getAmperageLatest();
+        e->fcVoltage = getBatteryVoltageLatest();
         logCount++;
     }
 
