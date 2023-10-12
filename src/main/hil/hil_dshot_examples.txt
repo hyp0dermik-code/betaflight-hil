@@ -1,6 +1,7 @@
 dshotprog 0 13
 dshotprog 0 13
 dshotprog 0 13
+dshot_telemetry_info
 hil_dshot_clr
 hil_dshot_add delay 1000
 hil_dshot_add motor 0 1040
@@ -47,4 +48,4 @@ hil_dshot_add logging_off
 hil_dshot_add delay 5000
 hil_dshot_add motor 0 1000
 hil_dshot_run
-
+dshot_telemetry_info
